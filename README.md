@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # 🚌 Bus Boarding Sequence Generator
 
 A system that generates optimal booking-wise boarding sequences for bus passengers to **maximize boarding time** using a back-to-front strategy with single front entry.
@@ -248,3 +249,6 @@ This ensures passengers don't block the aisle while others try to reach back sea
 ---
 
 **Built for optimal bus boarding efficiency! 🚌✨**
+=======
+# Bus-Boarding-Sequence-Generator
+>>>>>>> 168e7b7132ffa56634db0caef12b8b6c938f1dc1
