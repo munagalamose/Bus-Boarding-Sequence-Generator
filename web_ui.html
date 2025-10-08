@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bus Boarding Sequence Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            margin-bottom: 20px;
+        }
+
+        .input-section {
+            margin-bottom: 20px;
+        }
+
+        .input-section h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 150px;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            resize: vertical;
+            transition: border-color 0.3s;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        button {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .output-section {
+            display: none;
+        }
+
+        .output-section.active {
+            display: block;
+        }
+
+        .output-section h2 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+        }
+
+        .sequence-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .sequence-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .sequence-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .sequence-table tr:hover {
+            background: #f5f5f5;
+        }
+
+        .sequence-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: #667eea;
+            color: white;
+            border-radius: 12px;
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+
+        .info-box {
+            background: #f0f7ff;
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+
+        .info-box h3 {
+            color: #667eea;
+            margin-bottom: 8px;
+        }
+
+        .info-box ul {
+            margin-left: 20px;
+            color: #555;
+        }
+
+        .info-box li {
+            margin: 5px 0;
+        }
+
+        .bus-layout {
+            background: #f9f9f9;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            font-family: 'Courier New', monospace;
+            text-align: center;
+        }
+
+        .bus-layout pre {
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .error {
+            background: #ffebee;
+            color: #c62828;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border-left: 4px solid #c62828;
+        }
+
+        .success {
+            background: #e8f5e9;
+            color: #2e7d32;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border-left: 4px solid #2e7d32;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚌 Bus Boarding Sequence Generator</h1>
+            <p>Optimize boarding time with intelligent seat-based sequencing</p>
+        </div>
+
+        <div class="card">
+            <div class="info-box">
+                <h3>📋 How It Works</h3>
+                <ul>
+                    <li><strong>Strategy:</strong> Max boarding time - passengers with furthest seats board first (back to front)</li>
+                    <li><strong>Entry:</strong> Single front entry point</li>
+                    <li><strong>Tie-breaking:</strong> Earlier booking IDs get priority</li>
+                    <li><strong>Format:</strong> CSV with Booking_id and Seats columns</li>
+                </ul>
+            </div>
+
+            <div class="input-section">
+                <h2>📝 Input Booking Data</h2>
+                <textarea id="inputData" placeholder="Booking_id,Seats
+101,A1,b1
+120,A20,c2
+201,c2
+213,c18">Booking_id,Seats
+101,A1,b1
+120,A20,c2
+201,c2
+213,c18</textarea>
+                
+                <div class="button-group">
+                    <button class="btn-primary" onclick="generateSequence()">🚀 Generate Sequence</button>
+                    <button class="btn-secondary" onclick="clearData()">🗑️ Clear</button>
+                    <button class="btn-secondary" onclick="loadSample()">📄 Load Sample</button>
+                </div>
+            </div>
+
+            <div id="outputSection" class="output-section">
+                <h2>✅ Boarding Sequence</h2>
+                <div id="outputContent"></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2 style="color: #667eea; margin-bottom: 15px;">🚌 Bus Layout Reference</h2>
+            <div class="bus-layout">
+                <pre>
+╔═══════════════════════════╗
+║      BACK OF BUS          ║
+║   A20/B20    C20/D20      ║
+║   A19/B19    C19/D19      ║
+║      ...        ...       ║
+║   A2/B2      C2/D2        ║
+║   A1/B1      C1/D1        ║
+║                           ║
+║   ↓ FRONT ENTRY ↓         ║
+╚═══════════════════════════╝
+
+Strategy: Board A20 before A1
+(Furthest seats first)
+                </pre>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function parseSeat(seat) {
+            seat = seat.trim().toUpperCase();
+            const match = seat.match(/([A-Z])(\d+)/);
+            if (match) {
+                return {
+                    row: match[1],
+                    number: parseInt(match[2])
+                };
+            }
+            throw new Error(`Invalid seat format: ${seat}`);
+        }
+
+        function getSeatDistance(seat) {
+            const parsed = parseSeat(seat);
+            return parsed.number;
+        }
+
+        function getBookingMaxDistance(seats) {
+            return Math.max(...seats.map(seat => getSeatDistance(seat)));
+        }
+
+        function parseBookingData(csvText) {
+            const lines = csvText.trim().split('\n');
+            const bookings = [];
+            
+            // Skip header
+            for (let i = 1; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (!line) continue;
+                
+                const parts = line.split(',');
+                if (parts.length < 2) continue;
+                
+                const bookingId = parseInt(parts[0].trim());
+                const seats = parts.slice(1).map(s => s.trim());
+                
+                bookings.push({
+                    bookingId: bookingId,
+                    seats: seats,
+                    maxDistance: getBookingMaxDistance(seats)
+                });
+            }
+            
+            return bookings;
+        }
+
+        function generateBoardingSequence(bookings) {
+            // Sort by max distance (descending), then by booking ID (ascending)
+            return bookings.sort((a, b) => {
+                if (b.maxDistance !== a.maxDistance) {
+                    return b.maxDistance - a.maxDistance;
+                }
+                return a.bookingId - b.bookingId;
+            });
+        }
+
+        function generateSequence() {
+            const inputData = document.getElementById('inputData').value;
+            const outputSection = document.getElementById('outputSection');
+            const outputContent = document.getElementById('outputContent');
+            
+            try {
+                // Parse bookings
+                const bookings = parseBookingData(inputData);
+                
+                if (bookings.length === 0) {
+                    throw new Error('No valid booking data found');
+                }
+                
+                // Generate sequence
+                const sortedBookings = generateBoardingSequence(bookings);
+                
+                // Create table
+                let tableHTML = '<table class="sequence-table">';
+                tableHTML += '<thead><tr><th>Seq</th><th>Booking ID</th><th>Seats</th><th>Max Distance</th></tr></thead>';
+                tableHTML += '<tbody>';
+                
+                sortedBookings.forEach((booking, index) => {
+                    tableHTML += `<tr>
+                        <td><span class="badge">${index + 1}</span></td>
+                        <td><strong>${booking.bookingId}</strong></td>
+                        <td>${booking.seats.join(', ')}</td>
+                        <td>${booking.maxDistance}</td>
+                    </tr>`;
+                });
+                
+                tableHTML += '</tbody></table>';
+                
+                outputContent.innerHTML = '<div class="success">✓ Boarding sequence generated successfully!</div>' + tableHTML;
+                outputSection.classList.add('active');
+                
+                // Smooth scroll to output
+                outputSection.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                
+            } catch (error) {
+                outputContent.innerHTML = `<div class="error">❌ Error: ${error.message}</div>`;
+                outputSection.classList.add('active');
+            }
+        }
+
+        function clearData() {
+            document.getElementById('inputData').value = '';
+            document.getElementById('outputSection').classList.remove('active');
+        }
+
+        function loadSample() {
+            document.getElementById('inputData').value = `Booking_id,Seats
+101,A1,b1
+120,A20,c2
+201,c2
+213,c18`;
+        }
+
+        // Load sample data on page load
+        window.addEventListener('load', () => {
+            loadSample();
+        });
+    </script>
+</body>
+</html>
